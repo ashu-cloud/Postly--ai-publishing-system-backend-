@@ -1,0 +1,33 @@
+# Node.js
+node_modules/
+dist/
+*.log
+npm-debug.log*
+
+# Environment — NEVER commit real secrets
+.env
+.env.local
+.env.*.local
+
+# Keep .env.example in repo — it documents required variables
+!.env.example
+
+# Prisma
+prisma/migrations/*.sql.bak
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+*.swp
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Test artifacts
+coverage/
+.nyc_output/
+
+# Build artifacts
+*.tsbuildinfo
