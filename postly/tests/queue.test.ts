@@ -20,7 +20,37 @@ function validToken(userId = 'test-user-id'): string {
   );
 }
 
+import { prisma } from '../src/config/database';
+
+let testUserId = 'test-user-id';
+
 describe('Publishing Queue', () => {
+  beforeAll(async () => {
+    // Attempt to create a real user in the DB to satisfy foreign key constraints
+    try {
+      const user = await prisma.user.create({
+        data: {
+          email: 'queue-test@postly.test',
+          passwordHash: 'dummy',
+          name: 'Queue Test',
+        }
+      });
+      testUserId = user.id;
+    } catch (e) {
+      // Ignore if DB is not available
+    }
+  });
+
+  afterAll(async () => {
+    try {
+      if (testUserId !== 'test-user-id') {
+        await prisma.user.delete({ where: { id: testUserId } });
+      }
+    } catch (e) {
+      // Ignore
+    }
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
   });
@@ -41,7 +71,7 @@ describe('Publishing Queue', () => {
 
     const res = await request(app)
       .post('/api/posts/publish')
-      .set('Authorization', `Bearer ${validToken()}`)
+      .set('Authorization', `Bearer ${validToken(testUserId)}`)
       .send({
         idea: 'Testing queue creation',
         postType: 'ANNOUNCEMENT',
