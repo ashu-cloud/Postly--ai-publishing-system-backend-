@@ -16,7 +16,6 @@ import userRoutes from './modules/user/user.routes';
 import contentRoutes from './modules/content/content.routes';
 import postsRoutes from './modules/posts/posts.routes';
 import dashboardRoutes from './modules/dashboard/dashboard.routes';
-import botRoutes from './modules/bot/bot.routes';
 
 export const app = express();
 
@@ -46,7 +45,12 @@ app.use('/api/user', userRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/bot', botRoutes);
+
+// Bot webhook route — only in production (in dev, bot uses long polling via server.ts)
+if (process.env.NODE_ENV === 'production') {
+  // Dynamic import to avoid webhookCallback() marking the bot as webhook-mode in dev
+  import('./modules/bot/bot.routes').then((m) => app.use('/api/bot', m.default));
+}
 
 // ---- 404 handler ---------------------------------------------------
 app.use((_req, res) => {

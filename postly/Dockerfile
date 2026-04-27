@@ -2,6 +2,8 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl
 # Copy dependency manifests first — Docker layer caching means this layer
 # is only rebuilt when package.json changes, not on every code change
 COPY package*.json ./

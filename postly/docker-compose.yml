@@ -15,9 +15,6 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-    volumes:
-      - .:/app
-      - /app/node_modules  # Prevent host node_modules from being mounted into container
 
   postgres:
     image: postgres:15-alpine
