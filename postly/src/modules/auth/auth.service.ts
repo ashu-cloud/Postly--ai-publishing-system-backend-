@@ -13,13 +13,7 @@ import { env } from '../../config/env';
 import { AuthError, ConflictError, NotFoundError } from '../../utils/errors';
 import type { RegisterInput, LoginInput, RefreshInput } from './auth.schema';
 
-// bcrypt cost factor 12 — OWASP recommendation.
-// At this factor, hashing takes ~250ms on modern hardware — fast enough for UX,
-// slow enough that brute-forcing 10^9 passwords would take decades.
 const BCRYPT_ROUNDS = 12;
-
-// ---- Token helpers -----------------------------------------------
-
 function generateAccessToken(userId: string, email: string): string {
   return jwt.sign(
     { sub: userId, email },

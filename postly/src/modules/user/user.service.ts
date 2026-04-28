@@ -41,6 +41,7 @@ export async function updateProfile(userId: string, input: UpdateProfileInput) {
       bio: true,
       defaultTone: true,
       defaultLanguage: true,
+      telegramChatId: true,
     },
   });
   return user;

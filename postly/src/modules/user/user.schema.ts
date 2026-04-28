@@ -10,6 +10,7 @@ export const updateProfileSchema = z.object({
   bio: z.string().max(500).optional(),
   defaultTone: z.nativeEnum(Tone).optional(),
   defaultLanguage: z.string().length(2, 'Language must be a 2-char ISO code').optional(),
+  telegramChatId: z.string().optional(),
 });
 
 export const addSocialAccountSchema = z.object({
