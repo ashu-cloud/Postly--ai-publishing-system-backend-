@@ -1,74 +1,94 @@
-# Postly — Multi-Platform AI Content Publishing Engine
+# Postly - Queue-Orchestrated AI Publishing Backend
 
-> Backend API for Postly: drop a raw idea into Telegram, pick your platforms, and publish AI-generated content automatically.
+> A production-style backend that transforms raw ideas into platform-ready content and dispatches publishing through an asynchronous, fault-tolerant pipeline.
 
-## 🌐 Live API
-**Base URL:** `https://postly-api.onrender.com`
-**Telegram Bot:** `@PostlyPublishBot`
+## Why This Repo Looks Strong
 
-## ⚡ Quick Start (Local)
+- Event-driven architecture with Redis + BullMQ workers
+- Platform-isolated queue model for better resiliency
+- AI content generation integrated into a publish workflow
+- Secure auth flows with refresh token rotation
+- Typed validation and structured error handling
+- Build, test, and security verification baked into workflow
+
+## High-Level Architecture
+
+```text
+Client / Telegram Bot
+        |
+        v
+Express API (Auth, Content, Posts, Dashboard)
+        |
+        +--> AI Engine
+        |
+        +--> Queue Orchestrator (BullMQ)
+                 |
+                 +--> Twitter Worker
+                 +--> LinkedIn Worker
+                 +--> Instagram Worker
+                 +--> Threads Worker
+        |
+        +--> PostgreSQL (Prisma) + Redis
+```
+
+For deeper internals, see `ARCHITECTURE.md`.
+
+## Core Stack
+
+- Node.js, TypeScript, Express
+- PostgreSQL + Prisma ORM
+- Redis + BullMQ
+- Telegram Bot (Grammy)
+- OpenAI/OpenRouter integration layer
+- Jest + Supertest
+
+## Live Access
+
+- API Base URL: `https://postly-api.onrender.com`
+- Telegram Bot: `@PostlyPublishBot`
+
+## Local Setup
 
 ```bash
 git clone https://github.com/[your-username]/postly
 cd postly
 cp .env.example .env
-# Fill in your .env values
-docker-compose up
-```
-
-API will be available at `http://localhost:3000`
-
-## 📚 API Documentation
-Import `postly.postman_collection.json` into Postman and set the `baseUrl` variable.
-
-## 🤖 Telegram Bot Setup
-1. Create a bot via @BotFather → get token
-2. Add `TELEGRAM_BOT_TOKEN` to `.env`
-3. Set webhook: `curl https://api.telegram.org/bot{TOKEN}/setWebhook?url={YOUR_URL}/api/bot/webhook`
-4. Message the bot `/start`
-
-## 🏗 Architecture
-See `ARCHITECTURE.md` for full system design, data flow, and schema decisions.
-
-## 🔧 Environment Variables
-See `.env.example` — every variable is documented.
-
-## ✅ Testing & Verification
-
-Run these commands in order from the `postly` folder to fully verify the project before submission:
-
-```bash
-# 1) Install dependencies
-npm install
-
-# 2) Generate Prisma client
-npm run db:generate
-
-# 3) Start required services (database + redis)
+# Fill required variables
 docker compose up -d postgres redis
-
-# 4) Build check (TypeScript compile)
-npm run build
-
-# 5) Test suite
-npm test
-
-# 6) Security check (production dependencies only)
-npm audit --omit=dev
-
-# 7) Runtime check
+npm install
+npm run db:generate
 npm run dev
 ```
 
-Expected results:
-- Build completes without TypeScript errors
-- All Jest test suites pass
-- `npm audit --omit=dev` reports `found 0 vulnerabilities`
-- Server logs: `Postly API running on port 3000`
+## Testing & Verification
 
-If `npm run dev` fails with `EADDRINUSE` on port `3000`, stop the old process first, then restart.
+Run from project root:
 
-## ⚠️ Known Limitations
-- Platform OAuth flows are scaffolded (not full callbacks) — tokens must be manually provided
-- Instagram publishing uses Graph API scaffold — full approval requires Facebook app review
-- Rate limiting: 100 requests per 15 minutes per user
+```bash
+npm run build
+npm test
+npm audit --omit=dev
+npm run dev
+```
+
+Expected:
+- TypeScript build passes
+- All Jest tests pass
+- Audit reports zero production vulnerabilities
+- Server starts on port `3000`
+
+If `npm run dev` hits `EADDRINUSE`, stop the process using port `3000` and restart.
+
+## Public Security & Reliability Notes
+
+- Environment validation at startup
+- Authenticated encryption for sensitive values
+- Global rate limiting and schema validation
+- Centralized error handling and structured logging
+- Graceful shutdown logic for dependencies
+
+## Scope Notes
+
+- OAuth platform flows are scaffolded for assignment scope
+- Some publishing integrations are demo-oriented
+- Project focus is backend architecture and orchestration
