@@ -44,7 +44,7 @@ For deeper internals, see `ARCHITECTURE.md`.
 
 ## Live Access
 
-- API Base URL: `https://postly-api.onrender.com`
+- API Base URL: `[https://postly-api.onrender.com](https://postly-ai-publishing-system-backend.onrender.com/)`
 - Telegram Bot: `@PostlyPublishBot`
 
 ## Local Setup
