@@ -5,9 +5,9 @@
  * Services interact with the DB and external systems (bcrypt, JWT, UUID).
  */
 
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import jwt from 'jsonwebtoken';
-import { v4 as uuidv4 } from 'uuid';
 import { prisma } from '../../config/database';
 import { env } from '../../config/env';
 import { AuthError, ConflictError, NotFoundError } from '../../utils/errors';
@@ -34,7 +34,7 @@ function generateAccessToken(userId: string, email: string): string {
 async function createRefreshToken(userId: string): Promise<string> {
   // Refresh token is a random UUID — not a JWT.
   // Random UUIDs can't be forged; DB lookup confirms validity + revocation status.
-  const token = uuidv4();
+  const token = randomUUID();
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7); // 7 days
 

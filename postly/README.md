@@ -33,10 +33,40 @@ See `ARCHITECTURE.md` for full system design, data flow, and schema decisions.
 ## 🔧 Environment Variables
 See `.env.example` — every variable is documented.
 
-## ✅ Running Tests
+## ✅ Testing & Verification
+
+Run these commands in order from the `postly` folder to fully verify the project before submission:
+
 ```bash
+# 1) Install dependencies
+npm install
+
+# 2) Generate Prisma client
+npm run db:generate
+
+# 3) Start required services (database + redis)
+docker compose up -d postgres redis
+
+# 4) Build check (TypeScript compile)
+npm run build
+
+# 5) Test suite
 npm test
+
+# 6) Security check (production dependencies only)
+npm audit --omit=dev
+
+# 7) Runtime check
+npm run dev
 ```
+
+Expected results:
+- Build completes without TypeScript errors
+- All Jest test suites pass
+- `npm audit --omit=dev` reports `found 0 vulnerabilities`
+- Server logs: `Postly API running on port 3000`
+
+If `npm run dev` fails with `EADDRINUSE` on port `3000`, stop the old process first, then restart.
 
 ## ⚠️ Known Limitations
 - Platform OAuth flows are scaffolded (not full callbacks) — tokens must be manually provided
