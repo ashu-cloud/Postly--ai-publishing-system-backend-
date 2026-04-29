@@ -1,17 +1,3 @@
-/**
- * src/queue/worker.ts
- *
- * BullMQ workers — one per platform.
- *
- * Critical design: workers handle PARTIAL failure correctly.
- * If Twitter fails but LinkedIn succeeds:
- *   - LinkedIn PlatformPost → PUBLISHED
- *   - Twitter PlatformPost  → FAILED
- *   - Parent Post status    → PARTIAL (computed from all sibling statuses)
- *
- * After all 3 retry attempts fail, we record the error_message in platform_posts
- * and recompute the parent Post's aggregate status.
- */
 
 import { Worker, Job } from 'bullmq';
 import { createRedisConnection } from '../config/redis';

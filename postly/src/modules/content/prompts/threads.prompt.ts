@@ -1,7 +1,3 @@
-/**
- * src/modules/content/prompts/threads.prompt.ts
- * Threads-specific prompt fragment for the master system prompt.
- */
 export const threadsPromptFragment = `
 THREADS:
 - Maximum 500 characters (HARD LIMIT — count carefully)

@@ -1,8 +1,3 @@
-/**
- * src/modules/bot/commands/accounts.command.ts
- *
- * /accounts — lists connected social accounts.
- */
 
 import { Context } from 'grammy';
 import { prisma } from '../../../config/database';

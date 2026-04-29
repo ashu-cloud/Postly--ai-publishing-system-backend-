@@ -1,8 +1,3 @@
-/**
- * src/modules/dashboard/dashboard.service.ts
- *
- * Aggregate stats for the dashboard — runs efficient grouped queries.
- */
 
 import { prisma } from '../../config/database';
 import { PostStatus, JobStatus, Platform } from '@prisma/client';

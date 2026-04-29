@@ -1,10 +1,3 @@
-/**
- * src/config/env.ts
- *
- * Validates all required environment variables at startup using Zod.
- * If any required variable is missing or invalid, the process exits immediately
- * with a descriptive error — far better than cryptic runtime failures later.
- */
 
 import { z } from 'zod';
 import dotenv from 'dotenv';

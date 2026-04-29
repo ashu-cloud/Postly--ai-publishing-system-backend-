@@ -1,14 +1,3 @@
-/**
- * src/queue/queue.ts
- *
- * BullMQ queue definitions — one queue per platform.
- *
- * Why one queue per platform (not one shared queue):
- *   1. Independent scaling — we can add more Twitter workers without affecting LinkedIn
- *   2. Platform-specific rate limiting — Twitter API has different limits than LinkedIn
- *   3. Isolated failure domains — a LinkedIn outage doesn't block Twitter jobs
- *   4. Easier monitoring — queue depth per platform is a meaningful metric
- */
 
 import { JobsOptions, Queue } from 'bullmq';
 import { createRedisConnection } from '../config/redis';

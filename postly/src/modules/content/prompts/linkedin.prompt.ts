@@ -1,7 +1,3 @@
-/**
- * src/modules/content/prompts/linkedin.prompt.ts
- * LinkedIn-specific prompt fragment for the master system prompt.
- */
 export const linkedinPromptFragment = `
 LINKEDIN:
 - Between 800-1300 characters (HARD LIMIT on both ends — check your count)

@@ -1,7 +1,3 @@
-/**
- * src/modules/content/prompts/instagram.prompt.ts
- * Instagram-specific prompt fragment for the master system prompt.
- */
 export const instagramPromptFragment = `
 INSTAGRAM:
 - Write an engaging caption (no strict character limit, but aim for 125-150 words)

@@ -1,12 +1,3 @@
-/**
- * src/queue/scheduler.ts
- *
- * Periodic scheduler that dispatches SCHEDULED posts whose publishAt has passed.
- * Runs every minute — finds due posts and queues their platform jobs.
- *
- * In production this could be replaced by BullMQ's built-in delayed jobs,
- * but this explicit scheduler provides a clear audit path and easier debugging.
- */
 
 import { prisma } from '../config/database';
 import { queuePublishingJobs } from './queue';

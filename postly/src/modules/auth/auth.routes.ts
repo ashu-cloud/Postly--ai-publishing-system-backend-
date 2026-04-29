@@ -1,10 +1,3 @@
-/**
- * src/modules/auth/auth.routes.ts
- *
- * Auth route definitions.
- * Validation middleware runs before controllers.
- * Protected routes use requireAuth middleware.
- */
 
 import { Router } from 'express';
 import { validateBody } from '../../middleware/validate.middleware';

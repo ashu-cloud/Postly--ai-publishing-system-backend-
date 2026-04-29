@@ -1,6 +1,3 @@
-/**
- * src/modules/dashboard/dashboard.routes.ts
- */
 
 import { Router } from 'express';
 import { requireAuth } from '../../middleware/auth.middleware';

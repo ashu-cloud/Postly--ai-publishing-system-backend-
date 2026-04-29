@@ -1,9 +1,3 @@
-/**
- * src/utils/pagination.ts
- *
- * Computes pagination metadata from total record count and page/limit params.
- * Used by all list endpoints to build the `meta` field in the response envelope.
- */
 
 import { PaginationMeta, PaginationParams } from '../types';
 

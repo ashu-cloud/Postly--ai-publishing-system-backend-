@@ -1,8 +1,3 @@
-/**
- * src/modules/posts/posts.service.ts
- *
- * Post publishing, scheduling, retrieval, retry, and cancellation.
- */
 
 import { prisma } from '../../config/database';
 import { generateContent } from '../../services/ai/openrouter.service';

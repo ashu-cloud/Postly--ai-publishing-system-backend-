@@ -1,15 +1,3 @@
-/**
- * src/config/redis.ts
- *
- * ioredis client singleton shared by:
- *   - BullMQ queues and workers (requires a dedicated connection per queue)
- *   - Bot session state (bot:session:{chatId})
- *   - Rate limiter (sliding window counters)
- *
- * BullMQ requires its own connection instances (it hijacks the connection
- * for BLPOP blocking commands). We export a factory `createRedisConnection`
- * alongside the shared `redis` instance for general use.
- */
 
 import Redis from 'ioredis';
 

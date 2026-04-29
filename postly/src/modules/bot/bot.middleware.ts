@@ -1,8 +1,3 @@
-/**
- * src/modules/bot/bot.middleware.ts
- *
- * Bot middleware utilities — session management context.
- */
 
 import { Context } from 'grammy';
 import { getSession, setSession } from './bot';

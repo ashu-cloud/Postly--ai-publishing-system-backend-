@@ -1,6 +1,3 @@
-/**
- * src/modules/posts/posts.controller.ts
- */
 
 import { Request, Response, NextFunction } from 'express';
 import * as postsService from './posts.service';

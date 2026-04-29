@@ -1,6 +1,3 @@
-/**
- * src/modules/user/user.schema.ts
- */
 
 import { z } from 'zod';
 import { Platform, Tone } from '@prisma/client';

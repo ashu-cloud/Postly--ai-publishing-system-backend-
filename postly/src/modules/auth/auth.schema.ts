@@ -1,9 +1,3 @@
-/**
- * src/modules/auth/auth.schema.ts
- *
- * Zod schemas for all auth endpoint request bodies.
- * Validation happens in the middleware layer before reaching the controller.
- */
 
 import { z } from 'zod';
 

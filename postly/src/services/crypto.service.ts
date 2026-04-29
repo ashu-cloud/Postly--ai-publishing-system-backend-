@@ -1,21 +1,3 @@
-/**
- * src/services/crypto.service.ts
- *
- * AES-256-GCM encryption/decryption for sensitive data at rest.
- * Used for: social account access tokens, refresh tokens, user API keys.
- *
- * Why AES-256-GCM over AES-256-CBC:
- *   GCM (Galois/Counter Mode) provides authenticated encryption — it computes
- *   an authentication tag over the ciphertext. If the ciphertext is tampered
- *   with (bit-flipping attack), decryption fails loudly. CBC is malleable and
- *   vulnerable to padding oracle attacks. GCM has no padding.
- *
- * Format stored in DB: "iv:authTag:ciphertext" (all hex, colon-separated)
- *   - iv: 16 random bytes, unique per encryption → identical plaintexts
- *         produce different ciphertexts (semantic security)
- *   - authTag: 16 bytes GCM authentication tag → tamper detection
- *   - ciphertext: encrypted payload
- */
 
 import crypto from 'crypto';
 import { env } from '../config/env';

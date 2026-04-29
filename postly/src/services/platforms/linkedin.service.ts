@@ -1,9 +1,3 @@
-/**
- * src/services/platforms/linkedin.service.ts
- *
- * LinkedIn API publishing service — scaffold + simulation pattern.
- * Real endpoint: POST https://api.linkedin.com/v2/ugcPosts
- */
 
 import { decrypt } from '../crypto.service';
 import { logger } from '../../config/logger';

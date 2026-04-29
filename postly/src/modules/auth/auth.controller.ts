@@ -1,9 +1,3 @@
-/**
- * src/modules/auth/auth.controller.ts
- *
- * Thin controllers — extract validated input, call service, wrap in response envelope.
- * No business logic here — that lives in auth.service.ts.
- */
 
 import { Request, Response, NextFunction } from 'express';
 import * as authService from './auth.service';

@@ -1,6 +1,3 @@
-/**
- * src/modules/bot/commands/help.command.ts
- */
 
 import { Context } from 'grammy';
 

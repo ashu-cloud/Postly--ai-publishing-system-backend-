@@ -1,8 +1,3 @@
-/**
- * src/services/ai/ai.types.ts
- *
- * Types for the AI content generation service.
- */
 
 import { Platform, PostType, Tone } from '@prisma/client';
 

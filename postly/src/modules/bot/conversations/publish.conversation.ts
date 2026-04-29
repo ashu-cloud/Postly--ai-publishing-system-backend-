@@ -1,11 +1,3 @@
-/**
- * src/modules/bot/conversations/publish.conversation.ts
- *
- * Full 6-step publish conversation state machine.
- * State persisted in Redis — survives process restarts, 30-min TTL.
- *
- * Steps: POST_TYPE → PLATFORMS → TONE → MODEL → IDEA → CONFIRM
- */
 
 import { Context, InlineKeyboard } from 'grammy';
 import { getSession, setSession, clearSession } from '../bot';

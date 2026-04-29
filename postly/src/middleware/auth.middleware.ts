@@ -1,15 +1,3 @@
-/**
- * src/middleware/auth.middleware.ts
- *
- * JWT Bearer token verification middleware.
- * Applied to all protected routes — no exceptions.
- *
- * Error handling rules (intentionally strict):
- *   - No Authorization header   → 401 UNAUTHORIZED
- *   - Token expired             → 401 UNAUTHORIZED  (TokenExpiredError)
- *   - Invalid signature/format  → 403 FORBIDDEN     (JsonWebTokenError)
- *   - Valid token               → attaches req.user and calls next()
- */
 
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';

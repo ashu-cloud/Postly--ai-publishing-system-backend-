@@ -1,6 +1,3 @@
-/**
- * src/modules/content/content.service.ts
- */
 
 import { generateContent as aiGenerate } from '../../services/ai/openrouter.service';
 import type { GenerateContentInput } from './content.schema';

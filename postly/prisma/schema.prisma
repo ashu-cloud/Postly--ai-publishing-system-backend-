@@ -1,28 +1,22 @@
-// Generator config — outputs the standard Prisma Client for Node.js
+
 generator client {
   provider = "prisma-client-js"
 }
 
-// PostgreSQL datasource — URL loaded from environment at runtime
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// ============================================================
-// MODELS
-// ============================================================
-
-// User is the central entity. All other models cascade-delete on User removal.
 model User {
-  id               String          @id @default(cuid())   // cuid() preferred over uuid() — shorter, URL-safe, k-sortable
+  id               String          @id @default(cuid())
   email            String          @unique
-  passwordHash     String                                  // bcrypt hash, cost 12 — raw password NEVER stored
+  passwordHash     String
   name             String
   bio              String?
   defaultTone      Tone            @default(PROFESSIONAL)
   defaultLanguage  String          @default("en")
-  telegramChatId   String?         @unique                // links Telegram user to Postly account
+  telegramChatId   String?         @unique
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
 
@@ -34,60 +28,56 @@ model User {
   @@index([email])
 }
 
-// Stored in DB instead of being stateless JWTs — enables revocation, rotation, forced logout
 model RefreshToken {
   id        String   @id @default(cuid())
-  token     String   @unique              // random UUID — not a JWT, not guessable
+  token     String   @unique
   userId    String
   expiresAt DateTime
   createdAt DateTime @default(now())
-  revoked   Boolean  @default(false)      // set to true on logout or rotation
+  revoked   Boolean  @default(false)
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([token])   // primary lookup path — always queried by token value
-  @@index([userId])  // secondary — list all tokens for a user on forced logout
+  @@index([token])
+  @@index([userId])
 }
 
-// Each user can connect one account per platform (enforced by composite unique)
 model SocialAccount {
   id               String   @id @default(cuid())
   userId           String
   platform         Platform
-  accessTokenEnc   String              // AES-256-GCM encrypted — never stored plaintext
-  refreshTokenEnc  String?             // optional — some platforms use long-lived access tokens
-  handle           String              // e.g. "@postly" — display only, never used for auth
+  accessTokenEnc   String
+  refreshTokenEnc  String?
+  handle           String
   connectedAt      DateTime @default(now())
 
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, platform])         // one account per platform per user
+  @@unique([userId, platform])
   @@index([userId])
 }
 
-// Encrypted API keys per user — allows users to BYO keys, falling back to platform keys
 model AiKeys {
   id               String   @id @default(cuid())
   userId           String   @unique
-  openaiKeyEnc     String?             // AES-256-GCM encrypted
-  anthropicKeyEnc  String?             // AES-256-GCM encrypted
+  openaiKeyEnc     String?
+  anthropicKeyEnc  String?
   updatedAt        DateTime @updatedAt
 
   user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Parent record for a publishing request — one Post → many PlatformPosts
 model Post {
   id            String         @id @default(cuid())
   userId        String
-  idea          String                              // original user idea, max 500 chars
+  idea          String
   postType      PostType
   tone          Tone
   language      String         @default("en")
   modelUsed     AiModel
-  status        PostStatus     @default(QUEUED)    // aggregate of all platform_posts statuses
-  publishAt     DateTime?                           // null = publish immediately; set = scheduled
-  deletedAt     DateTime?                           // for soft-delete nice-to-have feature
+  status        PostStatus     @default(QUEUED)
+  publishAt     DateTime?
+  deletedAt     DateTime?
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -95,33 +85,28 @@ model Post {
   platformPosts PlatformPost[]
 
   @@index([userId])
-  @@index([status])     // filtered queries: show all FAILED posts
-  @@index([publishAt])  // scheduler daemon polls this index for due SCHEDULED posts
+  @@index([status])
+  @@index([publishAt])
 }
 
-// One record per (post × platform) — independent status, retry count, error tracking
 model PlatformPost {
   id           String         @id @default(cuid())
   postId       String
   platform     Platform
-  content      String                              // AI-generated, platform-specific content
+  content      String
   status       JobStatus      @default(QUEUED)
   publishedAt  DateTime?
-  errorMessage String?                             // last error from platform API
-  attempts     Int            @default(0)          // incremented by worker on each try
+  errorMessage String?
+  attempts     Int            @default(0)
   createdAt    DateTime       @default(now())
   updatedAt    DateTime       @updatedAt
 
   post         Post           @relation(fields: [postId], references: [id], onDelete: Cascade)
 
   @@index([postId])
-  @@index([status])    // worker queries: find all QUEUED jobs
-  @@index([platform])  // dashboard: count posts per platform
+  @@index([status])
+  @@index([platform])
 }
-
-// ============================================================
-// ENUMS
-// ============================================================
 
 enum Platform {
   TWITTER
@@ -152,18 +137,16 @@ enum AiModel {
   ANTHROPIC
 }
 
-// Aggregate status computed from all PlatformPost statuses
 enum PostStatus {
-  QUEUED       // all jobs queued, none started
-  PROCESSING   // at least one job is running
-  PARTIAL      // mix of PUBLISHED and FAILED
-  PUBLISHED    // all jobs PUBLISHED
-  FAILED       // all jobs FAILED
-  CANCELLED    // user cancelled (only from SCHEDULED)
-  SCHEDULED    // publishAt is in the future
+  QUEUED
+  PROCESSING
+  PARTIAL
+  PUBLISHED
+  FAILED
+  CANCELLED
+  SCHEDULED
 }
 
-// Per-platform job status — independent of parent Post status
 enum JobStatus {
   QUEUED
   PROCESSING

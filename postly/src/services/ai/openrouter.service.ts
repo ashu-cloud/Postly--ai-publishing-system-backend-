@@ -1,19 +1,3 @@
-/**
- * src/services/ai/openrouter.service.ts
- *
- * Core AI client — routes to the correct provider based on model selection.
- *
- * Architecture:
- *   model = 'openai'    → openaiClient  (api.openai.com, gpt-4o, OPENAI_KEY)
- *   model = 'anthropic' → claudeClient  (openrouter.ai, claude-sonnet-4-6, CLAUDE_API_KEY)
- *
- * Why two separate clients instead of one OpenRouter client for everything:
- *   The assignment requires direct OpenAI API integration for GPT-4o.
- *   OpenRouter is used exclusively for Claude to avoid mixing keys/routing.
- *
- * User's own API keys take precedence over platform keys — allows power users
- * to use their own quotas/billing.
- */
 
 import OpenAI from 'openai';
 import { prisma } from '../../config/database';
@@ -27,26 +11,19 @@ import { threadsPromptFragment } from '../../modules/content/prompts/threads.pro
 import type { GenerateParams, AIResponse, AIRawResponse } from './ai.types';
 import { Platform } from '@prisma/client';
 
-// ---- Two separate clients — DO NOT mix keys or base URLs --------
-
-// Client for GPT-4o — hits OpenAI directly, uses OPENAI_KEY
 const openaiClient = new OpenAI({
   apiKey: env.OPENAI_KEY,
   baseURL: 'https://api.openai.com/v1',
 });
 
-// Client for Claude Sonnet — routes through OpenRouter, uses CLAUDE_API_KEY
-// ONLY the Claude model ('anthropic/claude-sonnet-4-6') is sent via this client
 const claudeClient = new OpenAI({
   apiKey: env.CLAUDE_API_KEY,
   baseURL: 'https://openrouter.ai/api/v1',
   defaultHeaders: {
-    'HTTP-Referer': 'https://postly.app',    // OpenRouter best practice
+    'HTTP-Referer': 'https://postly.app',
     'X-Title': 'Postly Publishing Engine',
   },
 });
-
-// ---- Prompt builders --------------------------------------------
 
 function buildSystemPrompt(platforms: Platform[]): string {
   const platformsLower = platforms.map((p) => p.toLowerCase());
@@ -63,7 +40,6 @@ function buildSystemPrompt(platforms: Platform[]): string {
   if (platformsLower.includes('instagram')) fragments.push(instagramPromptFragment);
   if (platformsLower.includes('threads')) fragments.push(threadsPromptFragment);
 
-  // The JSON format instruction is critical — must be at the end so it's freshest in context
   fragments.push(`
 RESPONSE FORMAT:
 Return ONLY a valid JSON object with this exact structure (no markdown, no code fences, no explanation):
@@ -87,15 +63,13 @@ Core idea: ${params.idea}
 Generate the content now.`;
 }
 
-// ---- Response parsing & validation ------------------------------
-
 function extractHashtags(content: string): string[] {
   const matches = content.match(/#\w+/g) ?? [];
   return [...new Set(matches)]; // deduplicate
 }
 
 function parseAndValidate(rawJson: string, platforms: Platform[]): AIRawResponse {
-  // Strip markdown code fences if AI ignores the format instruction
+
   const cleaned = rawJson.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
   
   let parsed: AIRawResponse;
@@ -112,7 +86,7 @@ function processResponse(raw: AIRawResponse, platforms: Platform[]): AIResponse[
 
   if (platforms.includes(Platform.TWITTER) && raw.twitter) {
     let content = raw.twitter.content ?? '';
-    // Enforce 280-char hard limit — truncate if AI violated the rule
+
     if (content.length > 280) {
       content = content.slice(0, 277) + '...';
       logger.warn('[AI] Twitter content truncated to 280 chars');
@@ -163,17 +137,15 @@ function processResponse(raw: AIRawResponse, platforms: Platform[]): AIResponse[
   return result;
 }
 
-// ---- Main generation function -----------------------------------
-
 export async function generateContent(params: GenerateParams): Promise<AIResponse> {
-  // Check if the user has stored their own API key — use it if available
+
   let client = params.model === 'openai' ? openaiClient : claudeClient;
   const modelName = params.model === 'openai' ? 'gpt-4o' : 'anthropic/claude-sonnet-4-6';
 
   const userKeys = await prisma.aiKeys.findUnique({ where: { userId: params.userId } });
   if (userKeys) {
     if (params.model === 'openai' && userKeys.openaiKeyEnc) {
-      // Override platform client with user's own key
+
       client = new OpenAI({
         apiKey: decrypt(userKeys.openaiKeyEnc),
         baseURL: 'https://api.openai.com/v1',
@@ -197,8 +169,8 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
       { role: 'system', content: buildSystemPrompt(params.platforms) },
       { role: 'user', content: buildUserPrompt(params) },
     ],
-    temperature: 0.7,  // balanced creativity — not too random, not too robotic
-    max_tokens: 700,  // Sufficient token limit for full JSON response
+    temperature: 0.7,
+    max_tokens: 700,
   });
 
   const rawText = response.choices[0]?.message?.content ?? '';

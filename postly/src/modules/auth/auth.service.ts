@@ -1,9 +1,3 @@
-/**
- * src/modules/auth/auth.service.ts
- *
- * All auth business logic lives here — controllers are thin wrappers.
- * Services interact with the DB and external systems (bcrypt, JWT, UUID).
- */
 
 import bcrypt from 'bcryptjs';
 import { randomUUID } from 'crypto';

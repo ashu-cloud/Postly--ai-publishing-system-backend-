@@ -1,6 +1,3 @@
-/**
- * src/modules/content/content.schema.ts
- */
 
 import { z } from 'zod';
 import { Platform, PostType, Tone } from '@prisma/client';

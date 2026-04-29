@@ -1,10 +1,3 @@
-/**
- * src/config/logger.ts
- *
- * Winston logger configuration.
- * - In production: JSON format (machine-parseable, Render log aggregation friendly)
- * - In development: colorized, human-readable console output
- */
 
 import winston from 'winston';
 

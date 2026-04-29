@@ -1,14 +1,3 @@
-/**
- * src/middleware/error.middleware.ts
- *
- * Global Express error handler — must be registered LAST in app.ts.
- * Catches errors thrown/passed via next(err) from any route or middleware.
- *
- * Design rules:
- *   - AppError subclasses → use their statusCode and message
- *   - Prisma unique constraint violations → 409 Conflict
- *   - Unknown errors → 500, never expose stack trace in production
- */
 
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';

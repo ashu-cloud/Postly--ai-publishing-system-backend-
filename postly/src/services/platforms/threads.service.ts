@@ -1,11 +1,3 @@
-/**
- * src/services/platforms/threads.service.ts
- *
- * Threads API publishing service — scaffold + simulation pattern.
- * Threads uses the same Meta Graph API infrastructure as Instagram.
- * Endpoint: POST https://graph.threads.net/v1.0/me/threads
- *           POST https://graph.threads.net/v1.0/me/threads_publish
- */
 
 import { decrypt } from '../crypto.service';
 import { logger } from '../../config/logger';

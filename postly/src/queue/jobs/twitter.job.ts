@@ -1,7 +1,3 @@
-/**
- * src/queue/jobs/twitter.job.ts
- * Job data type and processing for Twitter publishing.
- */
 
 import { Job } from 'bullmq';
 import { prisma } from '../../config/database';

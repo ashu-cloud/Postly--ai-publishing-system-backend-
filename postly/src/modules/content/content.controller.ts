@@ -1,6 +1,3 @@
-/**
- * src/modules/content/content.controller.ts
- */
 
 import { Request, Response, NextFunction } from 'express';
 import { generateContent } from './content.service';

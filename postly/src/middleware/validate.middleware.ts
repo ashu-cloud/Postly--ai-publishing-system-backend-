@@ -1,13 +1,3 @@
-/**
- * src/middleware/validate.middleware.ts
- *
- * Zod request validation factory.
- * Returns an Express middleware that validates req.body, req.params, req.query
- * against the provided Zod schema and returns 400 if invalid.
- *
- * Usage:
- *   router.post('/register', validate(registerSchema), authController.register)
- */
 
 import { Request, Response, NextFunction } from 'express';
 import { ZodSchema, ZodError } from 'zod';

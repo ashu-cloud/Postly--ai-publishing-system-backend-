@@ -1,10 +1,3 @@
-/**
- * src/utils/errors.ts
- *
- * Custom error class hierarchy.
- * All errors extend AppError so the global error handler can catch them
- * and map to the correct HTTP status code without switch-casing on strings.
- */
 
 export class AppError extends Error {
   constructor(

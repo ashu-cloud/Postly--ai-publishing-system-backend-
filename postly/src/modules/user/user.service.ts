@@ -1,10 +1,3 @@
-/**
- * src/modules/user/user.service.ts
- *
- * User profile and social account management.
- * All tokens are encrypted with AES-256-GCM before DB storage.
- * Decrypted tokens are NEVER returned to the client.
- */
 
 import { prisma } from '../../config/database';
 import { encrypt } from '../../services/crypto.service';

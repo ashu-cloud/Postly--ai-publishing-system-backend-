@@ -1,6 +1,3 @@
-/**
- * src/queue/jobs/linkedin.job.ts
- */
 
 import { Job } from 'bullmq';
 import { prisma } from '../../config/database';

@@ -1,13 +1,3 @@
-/**
- * src/middleware/rateLimiter.ts
- *
- * Redis-based sliding window rate limiter.
- * Limit: 100 requests per 15-minute window, keyed by authenticated user ID.
- * Falls back to IP address for unauthenticated routes.
- *
- * Why Redis over in-memory: survives process restarts, works across multiple
- * instances/workers — essential for Render's auto-scaling.
- */
 
 import { Request, Response, NextFunction } from 'express';
 import { redis } from '../config/redis';

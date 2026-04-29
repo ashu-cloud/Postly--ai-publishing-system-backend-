@@ -1,10 +1,3 @@
-/**
- * src/utils/response.ts
- *
- * Standard response envelope helpers.
- * Every API response — success or error — goes through these functions.
- * Ensures consistent shape: { data, meta, error } across the entire API.
- */
 
 import { PaginationMeta } from '../types';
 

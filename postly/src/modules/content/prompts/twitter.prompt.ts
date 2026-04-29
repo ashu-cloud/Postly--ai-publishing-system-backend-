@@ -1,7 +1,3 @@
-/**
- * src/modules/content/prompts/twitter.prompt.ts
- * Twitter-specific prompt fragment for the master system prompt.
- */
 export const twitterPromptFragment = `
 TWITTER/X:
 - Maximum 280 characters (HARD LIMIT — count every character including spaces and punctuation)

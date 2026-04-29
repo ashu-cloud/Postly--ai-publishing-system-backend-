@@ -1,10 +1,3 @@
-/**
- * src/types/index.ts
- *
- * Shared TypeScript types used across multiple modules.
- * Keep this file focused on cross-cutting types only — 
- * module-specific types live alongside their module.
- */
 
 import { Request } from 'express';
 import { Platform, PostType, Tone, AiModel } from '@prisma/client';

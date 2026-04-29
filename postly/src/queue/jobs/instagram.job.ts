@@ -1,6 +1,3 @@
-/**
- * src/queue/jobs/instagram.job.ts
- */
 
 import { Job } from 'bullmq';
 import { prisma } from '../../config/database';

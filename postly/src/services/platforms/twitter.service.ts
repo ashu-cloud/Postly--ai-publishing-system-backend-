@@ -1,14 +1,3 @@
-/**
- * src/services/platforms/twitter.service.ts
- *
- * Twitter API v2 publishing service — scaffold + simulation pattern.
- *
- * If user has a connected Twitter account with tokens → real API call.
- * If no account connected → demo mode (logs what would have been posted).
- *
- * Real API endpoint: POST https://api.twitter.com/2/tweets
- * Auth: OAuth 2.0 Bearer token
- */
 
 import { decrypt } from '../crypto.service';
 import { logger } from '../../config/logger';

@@ -1,11 +1,3 @@
-/**
- * src/services/platforms/instagram.service.ts
- *
- * Instagram Graph API publishing service — scaffold + simulation pattern.
- * Real publishing requires Facebook app review + business account.
- * Endpoint: POST https://graph.facebook.com/v18.0/{ig-user-id}/media (create container)
- *           POST https://graph.facebook.com/v18.0/{ig-user-id}/media_publish (publish)
- */
 
 import { decrypt } from '../crypto.service';
 import { logger } from '../../config/logger';

@@ -1,12 +1,3 @@
-/**
- * src/server.ts
- *
- * Application entry point.
- * Starts the Express server, BullMQ workers, scheduler, and Telegram bot.
- *
- * In production (Render): bot uses webhook (no polling).
- * In development: bot uses long polling for easy local testing.
- */
 
 import './config/env'; // Validate env vars before anything else
 import { app } from './app';
@@ -16,30 +7,24 @@ import { redis } from './config/redis';
 import { logger } from './config/logger';
 import { startScheduler } from './queue/scheduler';
 
-// Import workers to register them (side effect — starts listening)
 import './queue/worker';
 
 async function main() {
-  // Verify DB connectivity before accepting traffic
+
   await prisma.$connect();
   logger.info('[DB] PostgreSQL connected');
 
-  // Connect Redis
   await redis.connect();
 
-  // Start the scheduled post dispatcher
   startScheduler();
 
-  // Start Express server
   const port = env.PORT;
   app.listen(port, () => {
     logger.info(`[Server] Postly API running on port ${port} (${env.NODE_ENV})`);
   });
 
-  // ---- Telegram Bot setup ----------------------------------------
   if (env.NODE_ENV === 'production') {
-    // In production: webhook mode — Telegram pushes updates to our endpoint
-    // Register webhook URL so Telegram pushes updates to our endpoint.
+
     logger.info('[Bot] Production mode — using webhook');
 
     if (env.WEBHOOK_URL) {
@@ -57,15 +42,13 @@ async function main() {
       logger.warn('[Bot] WEBHOOK_URL is not set — webhook registration skipped');
     }
   } else {
-    // In development: long polling — bot pulls updates from Telegram
-    // This doesn't require a public URL, works behind NAT/firewall
+
     const { bot } = await import('./modules/bot/bot');
     bot.start({
       onStart: (_botInfo) => { logger.info('[Bot] Development mode — long polling started'); },
     });
   }
 
-  // ---- Graceful shutdown ------------------------------------------
   const shutdown = async (signal: string) => {
     logger.info(`[Server] ${signal} received — shutting down gracefully`);
     await prisma.$disconnect();

@@ -1,6 +1,3 @@
-/**
- * src/modules/dashboard/dashboard.controller.ts
- */
 
 import { Request, Response, NextFunction } from 'express';
 import { getDashboardStats } from './dashboard.service';

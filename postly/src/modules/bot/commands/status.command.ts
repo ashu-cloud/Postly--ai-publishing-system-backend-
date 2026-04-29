@@ -1,8 +1,3 @@
-/**
- * src/modules/bot/commands/status.command.ts
- *
- * /status — shows last 5 posts with per-platform statuses.
- */
 
 import { Context } from 'grammy';
 import { prisma } from '../../../config/database';
