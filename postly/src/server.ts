@@ -23,29 +23,24 @@ async function main() {
     logger.info(`[Server] Postly API running on port ${port} (${env.NODE_ENV})`);
   });
 
-  if (env.NODE_ENV === 'production') {
+  const { bot } = await import('./modules/bot/bot');
 
-    logger.info('[Bot] Production mode — using webhook');
-
-    if (env.WEBHOOK_URL) {
-      const { bot } = await import('./modules/bot/bot');
-      const webhookUrl = `${env.WEBHOOK_URL.replace(/\/$/, '')}/api/bot/webhook`;
-      try {
-        await bot.api.setWebhook(webhookUrl);
-        logger.info(`[Bot] Webhook configured: ${webhookUrl}`);
-      } catch (err) {
-        logger.error('[Bot] Failed to configure webhook', {
-          error: err instanceof Error ? err.message : String(err),
-        });
-      }
-    } else {
-      logger.warn('[Bot] WEBHOOK_URL is not set — webhook registration skipped');
+  if (env.WEBHOOK_URL) {
+    const webhookUrl = `${env.WEBHOOK_URL.replace(/\/$/, '')}/api/bot/webhook`;
+    try {
+      // Clear any stale polling session before registering webhook
+      await bot.api.deleteWebhook({ drop_pending_updates: false });
+      await bot.api.setWebhook(webhookUrl);
+      logger.info(`[Bot] Webhook set: ${webhookUrl}`);
+    } catch (err) {
+      logger.error('[Bot] Failed to configure webhook', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   } else {
-
-    const { bot } = await import('./modules/bot/bot');
+    logger.info('[Bot] No WEBHOOK_URL set — starting long polling (dev only)');
     bot.start({
-      onStart: (_botInfo) => { logger.info('[Bot] Development mode — long polling started'); },
+      onStart: (_botInfo) => { logger.info('[Bot] Long polling started'); },
     });
   }
 
