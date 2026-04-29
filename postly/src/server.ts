@@ -8,6 +8,7 @@ import { logger } from './config/logger';
 import { startScheduler } from './queue/scheduler';
 
 import './queue/worker';
+import { bot } from './modules/bot/bot';
 
 async function main() {
 
@@ -23,15 +24,20 @@ async function main() {
     logger.info(`[Server] Postly API running on port ${port} (${env.NODE_ENV})`);
   });
 
-  const { bot } = await import('./modules/bot/bot');
-
   if (env.WEBHOOK_URL) {
     const webhookUrl = `${env.WEBHOOK_URL.replace(/\/$/, '')}/api/bot/webhook`;
+
+    if (env.NODE_ENV === 'development') {
+      logger.warn('[Bot] WEBHOOK_URL is set in development mode. This will override any production webhook. Unset WEBHOOK_URL locally to use long polling instead.');
+    }
+
     try {
-      // Clear any stale polling session before registering webhook
-      await bot.api.deleteWebhook({ drop_pending_updates: false });
+      // Set webhook directly — Telegram replaces existing webhook atomically, no need to delete first.
+      // Calling deleteWebhook before this step is dangerous: if the server crashes between the two calls,
+      // the webhook is permanently lost until the next successful setWebhook call.
       await bot.api.setWebhook(webhookUrl, {
         secret_token: process.env.TELEGRAM_SECRET_TOKEN,
+        drop_pending_updates: false,
       });
       logger.info(`[Bot] Webhook set: ${webhookUrl} (Security Token: ${process.env.TELEGRAM_SECRET_TOKEN ? 'Enabled' : 'Disabled'})`);
     } catch (err) {
@@ -40,9 +46,11 @@ async function main() {
       });
     }
   } else {
-    logger.info('[Bot] No WEBHOOK_URL set — starting long polling (dev only)');
+    logger.info('[Bot] No WEBHOOK_URL set — starting long polling');
     bot.start({
-      onStart: (_botInfo) => { logger.info('[Bot] Long polling started'); },
+      onStart: (botInfo) => {
+        logger.info(`[Bot] Long polling started as @${botInfo.username}`);
+      },
     });
   }
 

@@ -46,6 +46,9 @@ bot.on('callback_query:data', handleCallbackQuery);
 
 bot.on('message:text', async (ctx) => {
   const chatId = ctx.chat.id;
+  const username = ctx.from?.username || 'unknown';
+  logger.info(`[Bot] Message received from @${username} (${chatId}): ${ctx.message.text}`);
+  
   const session = await getSession(chatId);
 
   if (!session) {
