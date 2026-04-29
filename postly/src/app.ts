@@ -52,6 +52,10 @@ if (process.env.NODE_ENV === 'production') {
   import('./modules/bot/bot.routes').then((m) => app.use('/api/bot', m.default));
 }
 
+app.get('/', (_req, res) => {
+  res.json({ message: 'Welcome to the Postly API!' });
+});
+
 // ---- 404 handler ---------------------------------------------------
 app.use((_req, res) => {
   res.status(404).json({ data: null, meta: null, error: { message: 'Route not found', code: 'NOT_FOUND' } });
