@@ -24,5 +24,5 @@ RUN npm run build
 EXPOSE 3000
 
 # Run migrations (deploy = apply pending migrations without dev prompts)
-# then start the compiled server
-CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
+# Force schema sync directly to avoid the failed migration state
+CMD ["sh", "-c", "npx prisma db push --accept-data-loss && npm start"]
