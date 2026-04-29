@@ -30,8 +30,10 @@ async function main() {
     try {
       // Clear any stale polling session before registering webhook
       await bot.api.deleteWebhook({ drop_pending_updates: false });
-      await bot.api.setWebhook(webhookUrl);
-      logger.info(`[Bot] Webhook set: ${webhookUrl}`);
+      await bot.api.setWebhook(webhookUrl, {
+        secret_token: process.env.TELEGRAM_SECRET_TOKEN,
+      });
+      logger.info(`[Bot] Webhook set: ${webhookUrl} (Security Token: ${process.env.TELEGRAM_SECRET_TOKEN ? 'Enabled' : 'Disabled'})`);
     } catch (err) {
       logger.error('[Bot] Failed to configure webhook', {
         error: err instanceof Error ? err.message : String(err),
