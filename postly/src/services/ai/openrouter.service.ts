@@ -194,11 +194,11 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
   const response = await client.chat.completions.create({
     model: modelName,
     messages: [
-      { role: 'system', content: buildSystemPrompt(params.platforms) + '\n\nCRITICAL: Keep all content EXTREMELY short (max 1 sentence per platform) to stay under 100 tokens total.' },
+      { role: 'system', content: buildSystemPrompt(params.platforms) },
       { role: 'user', content: buildUserPrompt(params) },
     ],
     temperature: 0.7,  // balanced creativity — not too random, not too robotic
-    max_tokens: 150,   // Extremely low limit as requested
+    max_tokens: 700,  // Sufficient token limit for full JSON response
   });
 
   const rawText = response.choices[0]?.message?.content ?? '';
