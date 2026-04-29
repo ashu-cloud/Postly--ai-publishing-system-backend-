@@ -112,6 +112,7 @@ export async function listPosts(userId: string, query: ListPostsQuery) {
     ...(query.platform
       ? { platformPosts: { some: { platform: query.platform as Platform } } }
       : {}),
+    deletedAt: null, // Filter out soft-deleted posts
   };
 
   const [posts, total] = await Promise.all([
@@ -130,7 +131,7 @@ export async function listPosts(userId: string, query: ListPostsQuery) {
 
 export async function getPost(userId: string, postId: string) {
   const post = await prisma.post.findUnique({
-    where: { id: postId },
+    where: { id: postId, deletedAt: null },
     include: { platformPosts: true },
   });
   if (!post) throw new NotFoundError('Post');
@@ -172,23 +173,62 @@ export async function retryPost(userId: string, postId: string) {
 export async function deletePost(userId: string, postId: string) {
   const post = await getPost(userId, postId);
 
-  if (post.status !== PostStatus.SCHEDULED) {
-    throw new UnprocessableError('Only SCHEDULED posts can be cancelled');
+  // If the post is scheduled, try to cancel it in the queue
+  if (post.status === PostStatus.SCHEDULED) {
+    await removeQueuedPublishingJobs(post.platformPosts);
+    await prisma.post.update({
+      where: { id: postId },
+      data: { status: PostStatus.CANCELLED },
+    });
+    await prisma.platformPost.updateMany({
+      where: { postId },
+      data: { status: JobStatus.CANCELLED },
+    });
   }
 
-  // Best-effort: remove delayed jobs from BullMQ when still present.
-  await removeQueuedPublishingJobs(post.platformPosts);
-
-  // Mark as cancelled so even if a delayed job slipped through, workers can skip it.
+  // Perform the soft delete
   await prisma.post.update({
     where: { id: postId },
-    data: { status: PostStatus.CANCELLED },
+    data: { deletedAt: new Date() },
   });
 
-  await prisma.platformPost.updateMany({
-    where: { postId },
-    data: { status: JobStatus.CANCELLED },
+  return { message: 'Post deleted successfully' };
+}
+
+export async function restorePost(userId: string, postId: string) {
+  // Use findUnique without deletedAt: null to find the soft-deleted post
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post || post.userId !== userId) throw new NotFoundError('Post');
+
+  await prisma.post.update({
+    where: { id: postId },
+    data: { deletedAt: null },
   });
 
-  return { message: 'Post cancelled' };
+  return { message: 'Post restored successfully' };
+}
+
+export async function getPostAnalytics(userId: string, postId: string) {
+  const post = await getPost(userId, postId);
+
+  // Simulate analytics fetching from platforms
+  const analytics = post.platformPosts.map((pp) => {
+    if (pp.status !== JobStatus.PUBLISHED) {
+      return { platform: pp.platform, status: pp.status, stats: null };
+    }
+    
+    // Generate pseudo-random realistic stats based on post ID and platform
+    const seed = pp.id.charCodeAt(0) + pp.id.charCodeAt(pp.id.length - 1);
+    return {
+      platform: pp.platform,
+      status: pp.status,
+      stats: {
+        likes: (seed * 13) % 500,
+        shares: (seed * 7) % 100,
+        views: (seed * 113) % 10000,
+      }
+    };
+  });
+
+  return { postId: post.id, analytics };
 }

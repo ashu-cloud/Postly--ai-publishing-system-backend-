@@ -17,5 +17,7 @@ router.get('/', validate({ query: listPostsQuerySchema }), postsController.listP
 router.get('/:id', postsController.getPost);
 router.post('/:id/retry', postsController.retryPost);
 router.delete('/:id', postsController.deletePost);
+router.post('/:id/restore', postsController.restorePost);
+router.get('/:id/analytics', postsController.getPostAnalytics);
 
 export default router;

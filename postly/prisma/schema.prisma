@@ -87,6 +87,7 @@ model Post {
   modelUsed     AiModel
   status        PostStatus     @default(QUEUED)    // aggregate of all platform_posts statuses
   publishAt     DateTime?                           // null = publish immediately; set = scheduled
+  deletedAt     DateTime?                           // for soft-delete nice-to-have feature
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 

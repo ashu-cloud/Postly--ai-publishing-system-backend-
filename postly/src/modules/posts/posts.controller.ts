@@ -72,3 +72,25 @@ export async function deletePost(
     res.json(successResponse(result));
   } catch (err) { next(err); }
 }
+
+export async function restorePost(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const result = await postsService.restorePost(req.user!.id, req.params.id);
+    res.json(successResponse(result));
+  } catch (err) { next(err); }
+}
+
+export async function getPostAnalytics(
+  req: Request<{ id: string }>,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const result = await postsService.getPostAnalytics(req.user!.id, req.params.id);
+    res.json(successResponse(result));
+  } catch (err) { next(err); }
+}

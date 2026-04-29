@@ -126,6 +126,16 @@ Simply import this JSON file into Postman or Bruno to test the authentication, c
 - **Refresh Token Rotation:** Refresh tokens are stored in the DB (unlike stateless access tokens). Every refresh invalidates the old token, ensuring that stolen tokens are highly restricted.
 - **Trade-off - OAuth Implementation:** Full OAuth flows for social platforms were descoped for this assignment because they require domain verification and app review. Instead, platform integrations run in a robust simulation mode or use static Bearer tokens.
 
+## Standout Engineering Features (Nice-to-Haves)
+
+To ensure this backend represents senior-level engineering capabilities, I implemented several advanced "Nice-to-Have" features:
+
+1. **Redis-Backed Sliding Window Rate Limiting**: Unlike basic IP-based rate limiters, Postly implements a distributed rate limiter that keys off the authenticated `user.id` (falling back to IP for public routes). This guarantees fair usage across horizontal scaling.
+2. **Cron-Based Job Scheduler**: Postly doesn't just queue immediately. A dedicated scheduler daemon securely polls the PostgreSQL database for `SCHEDULED` posts and natively integrates with BullMQ to delay publishing.
+3. **Soft-Delete with Restoration**: Hard deleting social posts is dangerous. Postly implements a true soft-delete pattern (`deletedAt`) allowing users to remove posts from their dashboard while preserving the data, complete with a `/restore` API endpoint.
+4. **Platform Analytics Simulation**: The new `/api/posts/:id/analytics` endpoint simulates fetching post engagement metrics (likes, shares, views) from the platforms.
+5. **Webhook Signature Verification**: The Telegram webhook endpoint securely verifies the `X-Telegram-Bot-Api-Secret-Token` header, ensuring malicious requests from outside Telegram's servers are rejected.
+
 ---
 
 ## Known Issues and Limitations
