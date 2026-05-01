@@ -117,7 +117,7 @@ export async function handlePublishConversation(ctx: Context, session: BotSessio
 
       if (!user) {
         await ctx.reply(
-          "You haven't linked your Postly account yet. Visit the web app, go to Profile settings, and link your Telegram account."
+          `You haven't linked your Postly account yet (Your Telegram ID is: ${chatId}). Visit the web app, go to Profile settings, and link your Telegram account.`
         );
         await clearSession(chatId);
         return;
