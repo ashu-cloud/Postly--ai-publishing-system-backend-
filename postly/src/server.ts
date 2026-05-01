@@ -46,7 +46,8 @@ async function main() {
       });
     }
   } else {
-    logger.info('[Bot] No WEBHOOK_URL set — starting long polling');
+    logger.info('[Bot] No WEBHOOK_URL set — deleting any existing webhooks and starting long polling');
+    await bot.api.deleteWebhook();
     bot.start({
       onStart: (botInfo) => {
         logger.info(`[Bot] Long polling started as @${botInfo.username}`);
