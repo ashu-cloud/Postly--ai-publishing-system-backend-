@@ -22,19 +22,20 @@ app.use((_req, res, next) => {
   next();
 });
 
-app.use(rateLimiter);
-
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+// Exempt bots webhook from global rate limiter
+app.use('/api/bot', botRoutes);
+
+app.use(rateLimiter);
 
 app.use('/api/auth', authRoutes);
 app.use('/api/user', userRoutes);
 app.use('/api/content', contentRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
-app.use('/api/bot', botRoutes);
 
 app.get('/', (_req, res) => {
   res.json({ message: 'Welcome to the Postly API!' });

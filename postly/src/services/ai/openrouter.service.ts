@@ -152,10 +152,10 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
 
       client = new OpenAI({
         apiKey: decrypt(userKeys.openaiKeyEnc),
-        baseURL: 'https://api.openai.com/v1',
+        baseURL: 'https://openrouter.ai/api/v1',
       });
-      // If user provided a real OpenAI key, use the official model name without OpenRouter prefix
-      modelName = 'gpt-4o-mini';
+      // Use the openrouter model name
+      modelName = 'openai/gpt-4o-mini';
     } else if (params.model === 'anthropic' && userKeys.anthropicKeyEnc) {
       client = new OpenAI({
         apiKey: decrypt(userKeys.anthropicKeyEnc),
