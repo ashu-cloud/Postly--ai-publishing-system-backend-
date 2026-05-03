@@ -55,7 +55,32 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"password123\"\n}"
-            }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('Login succeeds', function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});",
+                    "try {",
+                    "  const response = pm.response.json();",
+                    "  const authData = response && response.data ? response.data : {};",
+                    "  if (authData.access_token) {",
+                    "    pm.collectionVariables.set('accessToken', authData.access_token);",
+                    "  }",
+                    "  if (authData.refresh_token) {",
+                    "    pm.collectionVariables.set('refreshToken', authData.refresh_token);",
+                    "  }",
+                    "} catch (error) {",
+                    "  console.warn('Unable to parse login response for token capture', error);",
+                    "}"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
@@ -69,7 +94,32 @@
             "body": {
               "mode": "raw",
               "raw": "{\n  \"refresh_token\": \"{{refreshToken}}\"\n}"
-            }
+            },
+            "event": [
+              {
+                "listen": "test",
+                "script": {
+                  "type": "text/javascript",
+                  "exec": [
+                    "pm.test('Refresh succeeds', function () {",
+                    "  pm.response.to.have.status(200);",
+                    "});",
+                    "try {",
+                    "  const response = pm.response.json();",
+                    "  const authData = response && response.data ? response.data : {};",
+                    "  if (authData.access_token) {",
+                    "    pm.collectionVariables.set('accessToken', authData.access_token);",
+                    "  }",
+                    "  if (authData.refresh_token) {",
+                    "    pm.collectionVariables.set('refreshToken', authData.refresh_token);",
+                    "  }",
+                    "} catch (error) {",
+                    "  console.warn('Unable to parse refresh response for token capture', error);",
+                    "}"
+                  ]
+                }
+              }
+            ]
           }
         },
         {

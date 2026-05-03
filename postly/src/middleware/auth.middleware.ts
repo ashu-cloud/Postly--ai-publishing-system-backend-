@@ -27,7 +27,12 @@ export function requireAuth(req: Request, res: Response, next: NextFunction): vo
 
   // Must be "Bearer <token>" format
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    res.status(401).json(errorResponse('Authentication token required', 'UNAUTHORIZED'));
+    res.status(401).json(
+      errorResponse(
+        'Authentication token required. Login via /api/auth/login and send Authorization: Bearer <accessToken>.',
+        'UNAUTHORIZED'
+      )
+    );
     return;
   }
 

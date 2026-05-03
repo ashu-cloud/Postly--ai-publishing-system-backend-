@@ -64,6 +64,7 @@ All endpoints are fully documented and testable via Postman.
 You can find the collection in the root of the repository: `postly.postman_collection.json`.
 
 Simply import this JSON file into Postman or Bruno to test the authentication, content generation, and publishing endpoints.
+Protected routes such as `/api/posts/publish` require `Authorization: Bearer <accessToken>`. The bundled Postman collection automatically saves `accessToken` and `refreshToken` as collection variables after a successful login or refresh.
 
 ---
 
