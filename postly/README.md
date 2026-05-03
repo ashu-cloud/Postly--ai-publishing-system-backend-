@@ -50,7 +50,7 @@ All required environment variables are documented in `.env.example`. Here is a b
 - `WEBHOOK_URL`: The base URL of your deployed application (used to register the bot webhook in production).
 
 ### AI Engines
-- `OPENAI_KEY`: Your OpenAI API key (used for `gpt-4o`).
+- `OPENAI_KEY` or `OPENROUTER_API_KEY`: Your OpenRouter API key used for `gpt-4o` in this backend.
 - `CLAUDE_API_KEY`: Your OpenRouter API key (used for `claude-sonnet-4-6`).
 
 ### Platform Credentials (Optional)

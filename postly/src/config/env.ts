@@ -5,6 +5,15 @@ import dotenv from 'dotenv';
 // Load .env file before validation
 dotenv.config();
 
+function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
+  return values.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim();
+}
+
+const normalizedEnv = {
+  ...process.env,
+  OPENAI_KEY: firstNonEmpty(process.env.OPENROUTER_API_KEY, process.env.OPENAI_KEY),
+};
+
 const envSchema = z.object({
   // Server
   PORT: z.string().default('3000').transform(Number),
@@ -39,7 +48,7 @@ const envSchema = z.object({
   LINKEDIN_ACCESS_TOKEN: z.string().optional(),
 });
 
-const _parsed = envSchema.safeParse(process.env);
+const _parsed = envSchema.safeParse(normalizedEnv);
 
 if (!_parsed.success) {
   console.error('❌ Invalid environment variables:');
