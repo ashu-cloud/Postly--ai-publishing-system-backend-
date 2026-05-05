@@ -1,6 +1,6 @@
 
 import { Context } from 'grammy';
-import { getSession, setSession } from './bot';
+import { getSession, setSession } from './session.store';
 import type { BotSession } from '../../types';
 
 /**

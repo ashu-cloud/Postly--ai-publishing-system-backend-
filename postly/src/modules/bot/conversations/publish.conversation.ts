@@ -1,6 +1,6 @@
 
 import { Context, InlineKeyboard } from 'grammy';
-import { getSession, setSession, clearSession } from '../bot';
+import { getSession, setSession, clearSession } from '../session.store';
 import { generateContent } from '../../../services/ai/openrouter.service';
 import { publishPost } from '../../posts/posts.service';
 import { prisma } from '../../../config/database';
