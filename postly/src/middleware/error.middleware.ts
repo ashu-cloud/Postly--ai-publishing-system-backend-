@@ -12,7 +12,12 @@ export function globalErrorHandler(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   _next: NextFunction
 ): void {
-  // Our own typed errors — safe to expose message
+  // Always log the exact error to console for debugging!
+  console.error("=== EXACT ERROR SEEN AT ENDPOINT ===");
+  console.error(err);
+  console.error("====================================");
+
+  // Our own typed errors 
   if (err instanceof AppError) {
     res.status(err.statusCode).json(errorResponse(err.message, err.code));
     return;
