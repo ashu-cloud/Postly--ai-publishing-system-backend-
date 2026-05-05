@@ -4,6 +4,7 @@ import { prisma } from '../../config/database';
 import { decrypt } from '../crypto.service';
 import { env } from '../../config/env';
 import { logger } from '../../config/logger';
+import { UnprocessableError } from '../../utils/errors';
 import { twitterPromptFragment } from '../../modules/content/prompts/twitter.prompt';
 import { linkedinPromptFragment } from '../../modules/content/prompts/linkedin.prompt';
 import { instagramPromptFragment } from '../../modules/content/prompts/instagram.prompt';
@@ -188,10 +189,11 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
       tokensUsed: response.usage?.total_tokens ?? 0,
     };
   } catch (err: any) {
-    logger.error(`[AI] Generation failed`, { error: err.message });
+    logger.error(`[AI] Generation failed`, { error: err.message, stack: err.stack });
     if (err.status === 401 || err.message?.includes('401')) {
-      throw new Error('AI API Key is invalid or missing. Ensure OPENAI_KEY or OpenRouter key is set securely.');
+      throw new UnprocessableError('AI API Key is invalid or missing. Ensure OPENAI_KEY or OpenRouter key is set securely.');
     }
-    throw err;
+    // Change fallback error so it's visible in Production, just to diagnose what's actually failing:
+    throw new UnprocessableError(`AI Generation failed: ${err.message}`);
   }
 }
