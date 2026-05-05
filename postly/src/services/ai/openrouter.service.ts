@@ -169,23 +169,31 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
     postType: params.postType,
   });
 
-  const response = await client.chat.completions.create({
-    model: modelName,
-    messages: [
-      { role: 'system', content: buildSystemPrompt(params.platforms) },
-      { role: 'user', content: buildUserPrompt(params) },
-    ],
-    temperature: 0.7,
-    max_tokens: 700,
-  });
+  try {
+    const response = await client.chat.completions.create({
+      model: modelName,
+      messages: [
+        { role: 'system', content: buildSystemPrompt(params.platforms) },
+        { role: 'user', content: buildUserPrompt(params) },
+      ],
+      temperature: 0.7,
+      max_tokens: 700,
+    });
 
-  const rawText = response.choices[0]?.message?.content ?? '';
-  const rawParsed = parseAndValidate(rawText, params.platforms);
-  const generated = processResponse(rawParsed, params.platforms);
+    const rawText = response.choices[0]?.message?.content ?? '';
+    const rawParsed = parseAndValidate(rawText, params.platforms);
+    const generated = processResponse(rawParsed, params.platforms);
 
-  return {
-    generated,
-    modelUsed: modelName,
-    tokensUsed: response.usage?.total_tokens ?? 0,
-  };
+    return {
+      generated,
+      modelUsed: modelName,
+      tokensUsed: response.usage?.total_tokens ?? 0,
+    };
+  } catch (err: any) {
+    logger.error(`[AI] Generation failed`, { error: err.message });
+    if (err.status === 401 || err.message?.includes('401')) {
+      throw new Error('AI API Key is invalid or missing. Ensure OPENAI_KEY or OpenRouter key is set securely.');
+    }
+    throw err;
+  }
 }
