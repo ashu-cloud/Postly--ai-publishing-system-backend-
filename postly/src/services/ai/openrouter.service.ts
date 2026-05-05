@@ -13,7 +13,7 @@ import { Platform } from '@prisma/client';
 
 const openaiClient = new OpenAI({
   apiKey: env.OPENAI_KEY,
-  baseURL: 'https://openrouter.ai/api/v1',
+  // Use default OpenAI base URL
   defaultHeaders: {
     'HTTP-Referer': 'https://postly.app',
     'X-Title': 'Postly Publishing Engine',
@@ -144,7 +144,7 @@ function processResponse(raw: AIRawResponse, platforms: Platform[]): AIResponse[
 export async function generateContent(params: GenerateParams): Promise<AIResponse> {
 
   let client = params.model === 'openai' ? openaiClient : claudeClient;
-  let modelName = params.model === 'openai' ? 'openai/gpt-4o-mini' : 'anthropic/claude-sonnet-4-6';
+  let modelName = params.model === 'openai' ? 'gpt-4o-mini' : 'anthropic/claude-sonnet-4-6';
 
   const userKeys = await prisma.aiKeys.findUnique({ where: { userId: params.userId } });
   if (userKeys) {
@@ -152,10 +152,8 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
 
       client = new OpenAI({
         apiKey: decrypt(userKeys.openaiKeyEnc),
-        baseURL: 'https://openrouter.ai/api/v1',
       });
-      // Use the openrouter model name
-      modelName = 'openai/gpt-4o-mini';
+      modelName = 'gpt-4o-mini';
     } else if (params.model === 'anthropic' && userKeys.anthropicKeyEnc) {
       client = new OpenAI({
         apiKey: decrypt(userKeys.anthropicKeyEnc),
