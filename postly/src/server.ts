@@ -24,12 +24,11 @@ async function main() {
     logger.info(`[Server] Postly API running on port ${port} (${env.NODE_ENV})`);
   });
 
-  if (env.WEBHOOK_URL) {
+  // Webhook should only be used in production. In local dev it's easy to set
+  // WEBHOOK_URL incorrectly, which results in "bot not responding" because long
+  // polling never starts.
+  if (env.NODE_ENV === 'production' && env.WEBHOOK_URL) {
     const webhookUrl = `${env.WEBHOOK_URL.replace(/\/$/, '')}/api/bot/webhook`;
-
-    if (env.NODE_ENV === 'development') {
-      logger.warn('[Bot] WEBHOOK_URL is set in development mode. This will override any production webhook. Unset WEBHOOK_URL locally to use long polling instead.');
-    }
 
     try {
       // Set webhook directly — Telegram replaces existing webhook atomically, no need to delete first.
@@ -46,7 +45,7 @@ async function main() {
       });
     }
   } else {
-    logger.info('[Bot] No WEBHOOK_URL set — deleting any existing webhooks and starting long polling');
+    logger.info('[Bot] Starting long polling (webhook disabled)');
     await bot.api.deleteWebhook();
     bot.start({
       onStart: (botInfo) => {

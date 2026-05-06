@@ -12,23 +12,28 @@ import { threadsPromptFragment } from '../../modules/content/prompts/threads.pro
 import type { GenerateParams, AIResponse, AIRawResponse } from './ai.types';
 import { Platform } from '@prisma/client';
 
-const openaiClient = new OpenAI({
-  apiKey: env.OPENAI_KEY,
-  // Use default OpenAI base URL
-  defaultHeaders: {
-    'HTTP-Referer': 'https://postly.app',
-    'X-Title': 'Postly Publishing Engine',
-  },
-});
+function isOpenRouterKey(apiKey: string): boolean {
+  // OpenRouter keys are typically prefixed with "sk-or-"
+  return apiKey.startsWith('sk-or-');
+}
 
-const claudeClient = new OpenAI({
-  apiKey: env.CLAUDE_API_KEY,
-  baseURL: 'https://openrouter.ai/api/v1',
-  defaultHeaders: {
-    'HTTP-Referer': 'https://postly.app',
-    'X-Title': 'Postly Publishing Engine',
-  },
-});
+function createClient(apiKey: string, opts?: { forceOpenRouter?: boolean }): OpenAI {
+  const useOpenRouter = opts?.forceOpenRouter || isOpenRouterKey(apiKey);
+
+  return new OpenAI({
+    apiKey,
+    ...(useOpenRouter ? { baseURL: 'https://openrouter.ai/api/v1' } : {}),
+    ...(useOpenRouter
+      ? {
+          defaultHeaders: {
+            // OpenRouter recommends these (safe no-ops elsewhere, but we only send when using OpenRouter)
+            'HTTP-Referer': 'https://postly.app',
+            'X-Title': 'Postly Publishing Engine',
+          },
+        }
+      : {}),
+  });
+}
 
 function buildSystemPrompt(platforms: Platform[]): string {
   const platformsLower = platforms.map((p) => p.toLowerCase());
@@ -144,22 +149,33 @@ function processResponse(raw: AIRawResponse, platforms: Platform[]): AIResponse[
 
 export async function generateContent(params: GenerateParams): Promise<AIResponse> {
 
-  let client = params.model === 'openai' ? openaiClient : claudeClient;
+  // Default to environment-level keys (assignment setup).
+  // If a user has saved personal keys, those override these.
+  let client: OpenAI | null = null;
   let modelName = params.model === 'openai' ? 'gpt-4o-mini' : 'anthropic/claude-sonnet-4-6';
 
   const userKeys = await prisma.aiKeys.findUnique({ where: { userId: params.userId } });
   if (userKeys) {
     if (params.model === 'openai' && userKeys.openaiKeyEnc) {
 
-      client = new OpenAI({
-        apiKey: decrypt(userKeys.openaiKeyEnc),
-      });
+      const apiKey = decrypt(userKeys.openaiKeyEnc);
+      client = createClient(apiKey);
       modelName = 'gpt-4o-mini';
     } else if (params.model === 'anthropic' && userKeys.anthropicKeyEnc) {
-      client = new OpenAI({
-        apiKey: decrypt(userKeys.anthropicKeyEnc),
-        baseURL: 'https://openrouter.ai/api/v1',
-      });
+      const apiKey = decrypt(userKeys.anthropicKeyEnc);
+      client = createClient(apiKey, { forceOpenRouter: true });
+    }
+  }
+
+  if (!client) {
+    if (params.model === 'openai') {
+      client = createClient(env.OPENAI_KEY);
+    } else {
+      const key = env.CLAUDE_API_KEY;
+      if (!key) {
+        throw new UnprocessableError('CLAUDE_API_KEY is not set. Set it or switch model to OpenAI.');
+      }
+      client = createClient(key, { forceOpenRouter: true });
     }
   }
 

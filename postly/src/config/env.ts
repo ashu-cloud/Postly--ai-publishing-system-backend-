@@ -1,18 +1,15 @@
+/**
+ * src/config/env.ts
+ *
+ * Validates all required environment variables at startup using Zod.
+ * If any required variable is missing or invalid, the process exits immediately
+ * with a descriptive error — far better than cryptic runtime failures later.
+ */
 
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-// Load .env file before validation
 dotenv.config();
-
-function firstNonEmpty(...values: Array<string | undefined>): string | undefined {
-  return values.find((value) => typeof value === 'string' && value.trim().length > 0)?.trim();
-}
-
-const normalizedEnv = {
-  ...process.env,
-  OPENAI_KEY: firstNonEmpty(process.env.OPENROUTER_API_KEY, process.env.OPENAI_KEY),
-};
 
 const envSchema = z.object({
   // Server
@@ -41,14 +38,15 @@ const envSchema = z.object({
 
   // AI keys — each has a dedicated provider, never mixed
   OPENAI_KEY: z.string().min(1, 'OPENAI_KEY is required'),
-  CLAUDE_API_KEY: z.string().min(1, 'CLAUDE_API_KEY is required'),
+  // Optional: only required if using Anthropic/OpenRouter model
+  CLAUDE_API_KEY: z.string().optional(),
 
   // Platform keys — optional, enables real publishing
   TWITTER_BEARER_TOKEN: z.string().optional(),
   LINKEDIN_ACCESS_TOKEN: z.string().optional(),
 });
 
-const _parsed = envSchema.safeParse(normalizedEnv);
+const _parsed = envSchema.safeParse(process.env);
 
 if (!_parsed.success) {
   console.error('❌ Invalid environment variables:');
