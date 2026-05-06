@@ -12,26 +12,15 @@ import { threadsPromptFragment } from '../../modules/content/prompts/threads.pro
 import type { GenerateParams, AIResponse, AIRawResponse } from './ai.types';
 import { Platform } from '@prisma/client';
 
-function isOpenRouterKey(apiKey: string): boolean {
-  // OpenRouter keys are typically prefixed with "sk-or-"
-  return apiKey.startsWith('sk-or-');
-}
-
-function createClient(apiKey: string, opts?: { forceOpenRouter?: boolean }): OpenAI {
-  const useOpenRouter = opts?.forceOpenRouter || isOpenRouterKey(apiKey);
-
+function createOpenRouterClient(apiKey: string): OpenAI {
   return new OpenAI({
     apiKey,
-    ...(useOpenRouter ? { baseURL: 'https://openrouter.ai/api/v1' } : {}),
-    ...(useOpenRouter
-      ? {
-          defaultHeaders: {
-            // OpenRouter recommends these (safe no-ops elsewhere, but we only send when using OpenRouter)
-            'HTTP-Referer': 'https://postly.app',
-            'X-Title': 'Postly Publishing Engine',
-          },
-        }
-      : {}),
+    baseURL: 'https://openrouter.ai/api/v1',
+    defaultHeaders: {
+      // OpenRouter recommends these
+      'HTTP-Referer': 'https://postly.app',
+      'X-Title': 'Postly Publishing Engine',
+    },
   });
 }
 
@@ -159,24 +148,23 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
     if (params.model === 'openai' && userKeys.openaiKeyEnc) {
 
       const apiKey = decrypt(userKeys.openaiKeyEnc);
-      client = createClient(apiKey);
+      client = createOpenRouterClient(apiKey);
       modelName = 'gpt-4o-mini';
     } else if (params.model === 'anthropic' && userKeys.anthropicKeyEnc) {
       const apiKey = decrypt(userKeys.anthropicKeyEnc);
-      client = createClient(apiKey, { forceOpenRouter: true });
+      client = createOpenRouterClient(apiKey);
     }
   }
 
   if (!client) {
     if (params.model === 'openai') {
-      const apiKey = env.OPENROUTER_API_KEY ?? env.OPENAI_KEY;
-      client = createClient(apiKey);
+      client = createOpenRouterClient(env.OPENROUTER_API_KEY);
     } else {
       const key = env.CLAUDE_API_KEY;
       if (!key) {
         throw new UnprocessableError('CLAUDE_API_KEY is not set. Set it or switch model to OpenAI.');
       }
-      client = createClient(key, { forceOpenRouter: true });
+      client = createOpenRouterClient(key);
     }
   }
 
@@ -184,7 +172,7 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
   // the server is calling OpenAI directly or OpenRouter.
   logger.info('[AI] Provider routing', {
     model: params.model,
-    provider: (client as any).baseURL?.includes('openrouter.ai') ? 'openrouter' : 'openai',
+    provider: 'openrouter',
   });
 
   logger.info(`[AI] Generating content via ${params.model} (${modelName})`, {

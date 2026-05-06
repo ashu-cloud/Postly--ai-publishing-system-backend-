@@ -37,9 +37,11 @@ const envSchema = z.object({
   WEBHOOK_URL: z.string().optional(),
 
   // AI keys — each has a dedicated provider, never mixed
-  OPENAI_KEY: z.string().min(1, 'OPENAI_KEY is required'),
-  // Alias for OpenRouter keys (some setups use this name instead of OPENAI_KEY)
-  OPENROUTER_API_KEY: z.string().optional(),
+  // IMPORTANT: This project routes GPT (model: "openai") through OpenRouter.
+  // We intentionally do NOT use OpenAI direct in this backend.
+  OPENROUTER_API_KEY: z.string().min(1, 'OPENROUTER_API_KEY is required'),
+  // Legacy/unused (kept only so old .env files don't crash parsing). Not used for requests.
+  OPENAI_KEY: z.string().optional(),
   // Optional: only required if using Anthropic/OpenRouter model
   CLAUDE_API_KEY: z.string().optional(),
 
