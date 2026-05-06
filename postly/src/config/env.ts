@@ -38,6 +38,8 @@ const envSchema = z.object({
 
   // AI keys — each has a dedicated provider, never mixed
   OPENAI_KEY: z.string().min(1, 'OPENAI_KEY is required'),
+  // Alias for OpenRouter keys (some setups use this name instead of OPENAI_KEY)
+  OPENROUTER_API_KEY: z.string().optional(),
   // Optional: only required if using Anthropic/OpenRouter model
   CLAUDE_API_KEY: z.string().optional(),
 

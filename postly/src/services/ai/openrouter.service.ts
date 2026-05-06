@@ -169,7 +169,8 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
 
   if (!client) {
     if (params.model === 'openai') {
-      client = createClient(env.OPENAI_KEY);
+      const apiKey = env.OPENROUTER_API_KEY ?? env.OPENAI_KEY;
+      client = createClient(apiKey);
     } else {
       const key = env.CLAUDE_API_KEY;
       if (!key) {
@@ -178,6 +179,13 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
       client = createClient(key, { forceOpenRouter: true });
     }
   }
+
+  // Helpful routing debug (does not expose keys). This makes it obvious in logs whether
+  // the server is calling OpenAI directly or OpenRouter.
+  logger.info('[AI] Provider routing', {
+    model: params.model,
+    provider: (client as any).baseURL?.includes('openrouter.ai') ? 'openrouter' : 'openai',
+  });
 
   logger.info(`[AI] Generating content via ${params.model} (${modelName})`, {
     platforms: params.platforms,
