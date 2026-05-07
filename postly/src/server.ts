@@ -27,17 +27,24 @@ async function main() {
   // Webhook should only be used in production. In local dev it's easy to set
   // WEBHOOK_URL incorrectly, which results in "bot not responding" because long
   // polling never starts.
-  if (env.NODE_ENV === 'production' && env.WEBHOOK_URL) {
-    const webhookUrl = `${env.WEBHOOK_URL.replace(/\/$/, '')}/api/bot/webhook`;
+  const appUrl = (env.WEBHOOK_URL || process.env.RENDER_EXTERNAL_URL || '').trim();
+  if (env.NODE_ENV === 'production' && appUrl) {
+    let baseUrl = appUrl.replace(/\/$/, '');
+    if (!/^https?:\/\//i.test(baseUrl)) {
+      baseUrl = `https://${baseUrl}`;
+    }
+    const webhookUrl = `${baseUrl}/api/bot/webhook`;
 
     try {
       // Set webhook directly — Telegram replaces existing webhook atomically, no need to delete first.
       // Calling deleteWebhook before this step is dangerous: if the server crashes between the two calls,
       // the webhook is permanently lost until the next successful setWebhook call.
-      await bot.api.setWebhook(webhookUrl, {
-        secret_token: process.env.TELEGRAM_SECRET_TOKEN,
-        drop_pending_updates: false,
-      });
+      const webhookOpts: any = { drop_pending_updates: false };
+      if (process.env.TELEGRAM_SECRET_TOKEN) {
+        webhookOpts.secret_token = process.env.TELEGRAM_SECRET_TOKEN.trim();
+      }
+
+      await bot.api.setWebhook(webhookUrl, webhookOpts);
       logger.info(`[Bot] Webhook set: ${webhookUrl} (Security Token: ${process.env.TELEGRAM_SECRET_TOKEN ? 'Enabled' : 'Disabled'})`);
     } catch (err) {
       logger.error('[Bot] Failed to configure webhook', {
