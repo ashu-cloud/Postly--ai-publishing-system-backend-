@@ -19,6 +19,7 @@ const verifyTelegramSecret = (req: any, res: any, next: any) => {
 
 // POST /api/bot/webhook — receives Telegram update objects
 // grammy's webhookCallback handles JSON parsing and bot dispatch internally
-router.post('/webhook', verifyTelegramSecret, webhookCallback(bot, 'express'));
+// We increase the timeout to 60000ms (60 seconds) because AI generation can take longer than the default 10s.
+router.post('/webhook', verifyTelegramSecret, webhookCallback(bot, 'express', 'return', 60000));
 
 export default router;
