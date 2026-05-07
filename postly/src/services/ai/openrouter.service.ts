@@ -146,13 +146,16 @@ export async function generateContent(params: GenerateParams): Promise<AIRespons
   const userKeys = await prisma.aiKeys.findUnique({ where: { userId: params.userId } });
   if (userKeys) {
     if (params.model === 'openai' && userKeys.openaiKeyEnc) {
-
-      const apiKey = decrypt(userKeys.openaiKeyEnc);
-      client = createOpenRouterClient(apiKey);
-      modelName = 'gpt-4o-mini';
+      const apiKey = decrypt(userKeys.openaiKeyEnc).trim();
+      if (apiKey) {
+        client = createOpenRouterClient(apiKey);
+        modelName = 'gpt-4o-mini';
+      }
     } else if (params.model === 'anthropic' && userKeys.anthropicKeyEnc) {
-      const apiKey = decrypt(userKeys.anthropicKeyEnc);
-      client = createOpenRouterClient(apiKey);
+      const apiKey = decrypt(userKeys.anthropicKeyEnc).trim();
+      if (apiKey) {
+        client = createOpenRouterClient(apiKey);
+      }
     }
   }
 

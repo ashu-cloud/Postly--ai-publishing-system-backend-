@@ -273,7 +273,7 @@ export async function handleCallbackQuery(ctx: Context): Promise<void> {
 
       try {
         // Queue the publishing jobs — same service used by REST API
-        const result = await publishPost(session.userId, {
+        await publishPost(session.userId, {
           idea: session.idea!,
           postType: (session.postType as PostType),
           platforms: (session.platforms as Platform[]),
@@ -304,5 +304,9 @@ export async function handleCallbackQuery(ctx: Context): Promise<void> {
   }
 
   // ---- Unexpected callback -------------------------------------------
-  await ctx.reply("I didn't understand that. Please use the buttons above, or send /post to start over.");
+  // ONLY reply "didn't understand" if the callback doesn't match known steps
+  // (Prevents falling through for async completions that take a while)
+  if (!data.startsWith('pt:') && !data.startsWith('pf:') && !data.startsWith('tone:') && !data.startsWith('model:') && !data.startsWith('confirm:')) {
+      await ctx.reply("I didn't understand that. Please use the buttons above, or send /post to start over.");
+  }
 }
